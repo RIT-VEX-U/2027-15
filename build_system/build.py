@@ -10,15 +10,21 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+from .settings import (
+    ProjectSettings,
+    load_settings,
+    sync_vscode,
+    update_setting,
+    validate_project_name,
+)
 from .toolchain import Toolchain, discover_toolchain
-from .util import BUILD_DIR, ROOT, SETTINGS_FILE, blue, bold, green, print_step, yellow
+from .util import BUILD_DIR, PROJECT_FILE, ROOT, blue, bold, green, print_step, write_if_changed, yellow
 
 SOURCE_GLOBS = (
     "src/**/*.c",
     "src/**/*.cpp",
     "core/src/**/*.c",
     "core/src/**/*.cpp",
-    "build_system/runtime_compat.c",
 )
 PROJECT_INCLUDES = (
     ROOT / "include",
@@ -54,6 +60,7 @@ CXX_FLAGS = [
 ]
 WARNING_FLAGS = ["-Wall", "-Werror=return-type"]
 LINK_LIBS = [
+    "-lvexpatcher",
     "-lv5rt",
     "-lc++",
     "-lc++abi",
@@ -64,22 +71,6 @@ LINK_LIBS = [
     "-lclang_rt.builtins",
 ]
 OBJDUMP_FLAGS = ["--source", "--line-numbers", "--demangle", "--disassemble"]
-
-def write_if_changed(path: Path, content: str) -> None:
-    if not path.exists() or path.read_text(encoding="utf-8") != content:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(content, encoding="utf-8")
-
-# gets the project name from vex_project_settings.json, checking allowed characters
-def get_project_name(args: argparse.Namespace) -> str:
-    name = args.project_name
-    if not name and SETTINGS_FILE.exists():
-        name = json.loads(SETTINGS_FILE.read_text(encoding="utf-8")).get("project", {}).get("name")
-    name = name or "VexProject"
-
-    if any(char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-" for char in name):
-        raise SystemExit(f"Project name must contain only letters, numbers, underscores, and dashes: {name}")
-    return name
 
 # generates the makefile and compile_commands.json for clangd
 def generate_build_files(name: str, sources: list[Path], toolchain: Toolchain, quiet: bool) -> None:
@@ -103,9 +94,8 @@ def generate_build_files(name: str, sources: list[Path], toolchain: Toolchain, q
         lang_flags = CXX_FLAGS if source.suffix == ".cpp" else C_FLAGS
         cmd_args = [*base_flags, *lang_flags, *includes, *system_includes, "-MMD", "-MP", "-MF", str(obj.with_suffix(".obj.d")), "-o", str(obj), "-c", str(source)]
         driver = "clang++" if source.suffix == ".cpp" else "clang"
-        driver = str(toolchain.toolchain_path / "bin" / (
-            "clang++.exe" if os.name == "nt" else "clang++"
-        ))
+        if os.name == "nt":
+            driver += ".exe"
         commands.append({"directory": str(ROOT), "arguments": [driver, *cmd_args], "file": str(source), "output": str(obj)})
 
     write_if_changed(BUILD_DIR / "compile_commands.json", json.dumps(commands, indent=2) + "\n")
@@ -113,12 +103,10 @@ def generate_build_files(name: str, sources: list[Path], toolchain: Toolchain, q
     # write Makefile
     obj_list = " \\\n  ".join(f"$(OBJROOT)/{source.relative_to(ROOT).as_posix()}.obj" for source in sources)
     ld_flags = [
-        "-z",
-        "norelro",
-        "-T",
-        toolchain.linker_script.as_posix(),
+        "-z norelro",
+        f"-T{toolchain.linker_script.as_posix()}",
+        "-e patcher_startup",
         "--gc-sections",
-        "--wrap=vexSystemStdlibImpureDataAddr",
         f"-L{toolchain.sdk_path.as_posix()}",
         f"-L{toolchain.newlib_lib_dir.as_posix()}",
     ]
@@ -188,10 +176,16 @@ def clean() -> int:
     return 0
 
 # compile changed files, link, strip
-def build(args: argparse.Namespace) -> int:
+def build(args: argparse.Namespace, settings: ProjectSettings | None = None) -> int:
     start_time = time.time()
-    name = get_project_name(args)
-    toolchain = discover_toolchain()
+    if args.project_name is not None:
+        update_setting("project", "name", validate_project_name(args.project_name))
+        settings = None
+    settings = settings or load_settings()
+    name = settings.name
+    toolchain = discover_toolchain(settings.sdk)
+    # vex extension compatability, updates .vscode/vex_project_settings.json
+    sync_vscode(settings, toolchain.sdk_path.parent.name)
     sources = sorted(source for glob in SOURCE_GLOBS for source in ROOT.glob(glob))
     jobs = args.parallel or os.cpu_count() or 1
 
@@ -206,6 +200,7 @@ def build(args: argparse.Namespace) -> int:
 
     generate_build_files(name, sources, toolchain, args.quiet)
 
+    # run make
     result = subprocess.run(
         [str(toolchain.make), "--silent", "--no-print-directory", "-f", str(BUILD_DIR / "Makefile"), f"-j{jobs}"],
         cwd=ROOT,
@@ -228,57 +223,57 @@ def rebuild(args: argparse.Namespace) -> int:
     clean()
     return build(args)
 
-# check for vexcom in the toolchain then try using path
-def find_vexcom() -> str | None:
-    toolchain = discover_toolchain()
-    executable = "vexcom.exe" if os.name == "nt" else "vexcom"
-    bundled = toolchain.toolchain_path / "tools" / "vexcom" / executable
-    return str(bundled) if bundled.is_file() else shutil.which(executable)
+# check for vflash in the toolchain then try PATH
+def find_vflash(settings: ProjectSettings) -> str | None:
+    bundled = discover_toolchain(settings.sdk).vflash
+    return str(bundled) if bundled.is_file() else shutil.which(bundled.name)
 
-# use vexcom to upload into slot
+# switch to download channel async while building so we don't have to wait
+def prepare_download_channel(vflash: str) -> subprocess.Popen[bytes] | None:
+    try:
+        return subprocess.Popen(
+            [vflash, "channel", "download"],
+            cwd=ROOT,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except OSError as error:
+        print_step(yellow(f"Could not prepare download channel: {error}"))
+        return None
+
+
+# build and upload using project.toml settings
 def upload(args: argparse.Namespace) -> int:
-    slot = args.slot
-    # if slot provided, update vex_project_settings.json, else use from file
-    if slot is not None:
-        if not SETTINGS_FILE.exists():
-            print_step(f"Error: project settings not found: {SETTINGS_FILE}")
-            return 1
+    if args.slot is not None:
+        update_setting("upload", "slot", args.slot)
+    settings = load_settings()
+    vflash = find_vflash(settings)
 
-        settings = json.loads(SETTINGS_FILE.read_text(encoding="utf-8"))
-        settings.setdefault("project", {})["slot"] = slot
-        write_if_changed(SETTINGS_FILE, json.dumps(settings, indent="\t") + "\n")
-    elif SETTINGS_FILE.exists():
-        settings = json.loads(SETTINGS_FILE.read_text(encoding="utf-8"))
-        slot = settings.get("project", {}).get("slot", 1)
-    else:
-        slot = 1
+    if vflash is None:
+        print_step("Error: vflash not found in the toolchain or PATH")
+        return 1
 
-    result = build(args)
+    # preemptively switch to download channel
+    channel_process = prepare_download_channel(vflash) if vflash is not None else None
+
+    try:
+        result = build(args, settings)
+    finally:
+        if channel_process is not None:
+            channel_process.wait()
+
     if result != 0:
         return result
 
-    name = get_project_name(args)
-    binary = BUILD_DIR / f"{name}.bin"
+    binary = BUILD_DIR / f"{settings.name}.bin"
     if not binary.exists():
         print_step(f"Error: binary not found: {binary}")
         return 1
 
-    vexcom = find_vexcom()
-    if vexcom is None:
-        print_step("Error: vexcom not found in the toolchain or PATH")
-        return 1
 
-    print_step(yellow(f"Uploading {binary.name} to slot {slot}..."))
-    # before uploading attempt to switch to download radio for faster controller upload
-    subprocess.run(
-        [vexcom, "--chan 1"],
-        cwd=ROOT,
-        check=False,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
+    print_step(yellow(f"Uploading {binary.name} to slot {settings.slot} ({settings.strategy})..."))
     result = subprocess.run(
-        [vexcom, "-w", str(binary), "--progress", "-s", str(slot)],
+        [vflash, "upload", "--config", str(PROJECT_FILE), str(binary)],
         cwd=ROOT,
         check=False,
     )
@@ -288,26 +283,30 @@ def upload(args: argparse.Namespace) -> int:
 
 # runs program in slot
 def run_program(args: argparse.Namespace) -> int:
-    slot = args.slot
-    if slot is None and SETTINGS_FILE.exists():
-        settings = json.loads(SETTINGS_FILE.read_text(encoding="utf-8"))
-        slot = settings.get("project", {}).get("slot", 1)
-    slot = slot or 1
+    settings = load_settings()
+    slot = args.slot or settings.slot
 
-    vexcom = find_vexcom()
-    if vexcom is None:
-        print_step("Error: vexcom not found in the toolchain or PATH")
+    vflash = find_vflash(settings)
+    if vflash is None:
+        print_step("Error: vflash not found in the toolchain or PATH")
         return 1
 
-    print_step(yellow(f"Running program in slot {slot}..."))
-    return subprocess.run([vexcom, "--run", "--slot", str(slot)], cwd=ROOT, check=False).returncode
+    command = [vflash, "run", str(slot)]
+    if settings.terminal == "interactive":
+        command.extend(("--terminal", "--interactive"))
+    elif settings.terminal == "watch":
+        command.extend(("--terminal", "--read-only"))
+
+    print_step(yellow(f"Running program in slot {slot} ({settings.terminal})..."))
+    return subprocess.run(command, cwd=ROOT, check=False).returncode
 
 # stops currently running program
 def stop() -> int:
-    vexcom = find_vexcom()
-    if vexcom is None:
-        print_step("Error: vexcom not found in the toolchain or PATH")
+    settings = load_settings()
+    vflash = find_vflash(settings)
+    if vflash is None:
+        print_step("Error: vflash not found in the toolchain or PATH")
         return 1
 
     print_step(yellow("Stopping program..."))
-    return subprocess.run([vexcom, "--stop"], cwd=ROOT, check=False).returncode
+    return subprocess.run([vflash, "stop"], cwd=ROOT, check=False).returncode

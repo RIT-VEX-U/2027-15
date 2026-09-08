@@ -1,0 +1,51 @@
+# VEX project settings used by the Python build and vflash
+#
+# CLI options override these settings, and changes made in the run command,
+# like `python -m build_system upload --slot 3` or `make upload 3` are
+# written back here. To keep compatability with the VEX vscode extension the
+# build system still also updates `.github/vex_project_settings.json`
+
+schema = 1
+
+[project]
+# Accepts alphanumerics, underscores, and dashes.
+name = "Template"
+
+# Program description shown before running on brain.
+description = "Default template using Core"
+
+# Target VEX platform (Holdover from vscode extension, don't edit)
+platform = "V5"
+
+# Icon showed in the slot on the brain..
+#   "vex-coding-studio", "cool-x", "question-mark", "pizza", "clawbot",
+#   "robot", "power-button", "planets", "alien", "alien-in-ufo",
+#   "cup-in-field", "cup-and-ball", "matlab", "pros", "robot-mesh",
+#   "robot-mesh-cpp", "robot-mesh-blockly", "robot-mesh-flowol",
+#   "robot-mesh-js", "robot-mesh-py", "code-file", "vexcode-brackets",
+#   "vexcode-blocks", "vexcode-python", or "vexcode-cpp".
+icon = "matlab"
+
+[build]
+# Specific SDK version to be used.
+#   "latest"                - use newest installed, or download latest if missing.
+#   "V5_YYYYMMDD_HH_MM_SS"  - use or download specific version.
+# Latest is currently `V5_20240802_15_00_00`
+sdk = "latest"
+
+[upload]
+# Slot number 1-8.
+slot = 1
+
+# Upload strategy
+#   "full"          - upload the full binary
+#   "differential"  - upload full binary once, then upload incremental patches to it
+#   "ram"           - upload directly to RAM, immediately runs and doesn't affect slots
+strategy = "differential"
+
+[run]
+# Terminal behavior on program run
+#   "interactive"  - attach stdin and stdout, Ctrl-C stops the program.
+#   "watch"        - attach stdout, Ctrl-C detaches but program continues.
+#   "none"         - start the program with no io.
+terminal = "interactive"
