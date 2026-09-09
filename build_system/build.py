@@ -103,9 +103,12 @@ def generate_build_files(name: str, sources: list[Path], toolchain: Toolchain, q
     # write Makefile
     obj_list = " \\\n  ".join(f"$(OBJROOT)/{source.relative_to(ROOT).as_posix()}.obj" for source in sources)
     ld_flags = [
-        "-z norelro",
-        f"-T{toolchain.linker_script.as_posix()}",
-        "-e patcher_startup",
+        "-z",
+        "norelro",
+        "-T",
+        toolchain.linker_script.as_posix(),
+        "-e",
+        "patcher_startup",
         "--gc-sections",
         f"-L{toolchain.sdk_path.as_posix()}",
         f"-L{toolchain.newlib_lib_dir.as_posix()}",
