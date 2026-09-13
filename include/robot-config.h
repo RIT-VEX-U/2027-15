@@ -15,6 +15,9 @@
 
 // ================ SUBSYSTEMS ================
 
+extern vex::controller Con;
+extern TankDrive drive_sys;
+
 // ================ UTILS ================
 
 void robot_init();
