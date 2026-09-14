@@ -9,7 +9,7 @@ schema = 1
 
 [project]
 # Accepts alphanumerics, underscores, and dashes.
-name = "Template"
+name = "lift-test"
 
 # Program description shown before running on brain.
 description = "Default template using Core"
@@ -35,7 +35,7 @@ sdk = "latest"
 
 [upload]
 # Slot number 1-8.
-slot = 1
+slot = 8
 
 # Upload strategy
 #   "full"          - upload the full binary

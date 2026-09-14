@@ -58,7 +58,7 @@ CXX_FLAGS = [
     "-ffunction-sections",
     "-fdata-sections",
 ]
-WARNING_FLAGS = ["-Wall", "-Werror=return-type"]
+WARNING_FLAGS = ["-Wall", "-Werror=return-type", "-Wno-unused-function", "-Wno-unused-variable", "-Wno-unused-private-field"]
 LINK_LIBS = [
     "-lvexpatcher",
     "-lv5rt",
