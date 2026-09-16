@@ -17,6 +17,7 @@
 
 extern vex::controller Con;
 extern TankDrive drive_sys;
+extern OdometryTank odom_master;
 
 // ================ UTILS ================
 
