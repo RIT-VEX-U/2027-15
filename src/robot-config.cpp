@@ -5,11 +5,18 @@
 #include <vex_motorgroup.h>
 #include <vex_units.h>
 
+#include <cstddef>
+
+#include "competition/autonomous.h"
+#include "competition/opcontrol.h"
 #include "core/robot_specs.h"
+#include "core/subsystems/screen/legacy.h"
+#include "core/subsystems/screen/screen_controller.h"
 #include "core/subsystems/tank_drive.h"
 
-vex::controller Con;
-
+vex::brain brain;
+vex::competition competition;
+vex::controller controller;
 
 vex::motor left1(vex::PORT7, vex::gearSetting::ratio6_1, false);
 vex::motor left2(vex::PORT8, vex::gearSetting::ratio6_1, true);
@@ -29,12 +36,8 @@ vex::motor_group right_motors(right1, right2, right3, right4, right5);
 
 vex::inertial inert_master(vex::PORT14);
 
-PID::pid_config_t pid_master {
-    .p = 0.019,
-    .i = 0.005,
-    .d = 0.00125,
-    .deadband = 1,
-    .on_target_time =0.1
+PID::pid_config_t pid_master{
+    .p = 0.019, .i = 0.005, .d = 0.00125, .deadband = 1, .on_target_time = 0.1
 };
 
 PID pid_turn(pid_master);
@@ -52,10 +55,19 @@ OdometryTank odom_master(left_motors, right_motors, robot_specs, &inert_master);
 
 TankDrive drive_sys(left_motors, right_motors, robot_specs, &odom_master);
 
-void robot_init() {
-    inert_master.calibrate();
-    while (inert_master.isCalibrating()) {
-        vexDelay(10);
-    }
-    printf("random print line here\n");
-};
+std::vector<Initialization> inits = {};
+
+LegacyScreen::LegacyPage init_page, match_page;
+Initializer initializer([]() {
+  // Initialization code here
+  inert_master.calibrate();
+  while (inert_master.isCalibrating()) {
+    vexDelay(10);
+  }
+  printf("random print line here\n");
+  ScreenController::set((match_page = LegacyScreen::LegacyPage(
+                             brain.Screen,
+                             {new LegacyScreen::PIDPage(pid_turn, "turn_pid", nullptr)}
+                         ))
+                            .handle());
+});
