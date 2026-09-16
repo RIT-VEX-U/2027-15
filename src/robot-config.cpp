@@ -29,16 +29,33 @@ vex::motor_group right_motors(right1, right2, right3, right4, right5);
 
 vex::inertial inert_master(vex::PORT14);
 
+PID::pid_config_t pid_master {
+    .p = 0.019,
+    .i = 0.005,
+    .d = 0.00125,
+    .deadband = 1,
+    .on_target_time =0.1
+};
+
+PID pid_turn(pid_master);
+
 robot_specs_t robot_specs{
     .robot_radius = 10,
     .odom_wheel_diam = 2.75,
     .odom_gear_ratio = 1,
     .dist_between_wheels = 12.0,
     .drive_correction_cutoff = 5,
+    .turn_feedback = &pid_turn
 };
 
 OdometryTank odom_master(left_motors, right_motors, robot_specs, &inert_master);
 
 TankDrive drive_sys(left_motors, right_motors, robot_specs, &odom_master);
 
-void robot_init() {};
+void robot_init() {
+    inert_master.calibrate();
+    while (inert_master.isCalibrating()) {
+        vexDelay(10);
+    }
+    printf("random print line here\n");
+};
