@@ -28,6 +28,10 @@ extern vex::motor right3;
 extern vex::motor right4;
 extern vex::motor_group right_motors;
 
+extern vex::motor lift_left;
+extern vex::motor lift_right;
+extern vex::motor_group lift_motors;
+
 // Pneumatics
 
 // ================ SUBSYSTEMS ================

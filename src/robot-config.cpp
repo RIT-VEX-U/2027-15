@@ -8,17 +8,22 @@ vex::brain brain;
 vex::competition competition;
 vex::controller controller;
 
-vex::motor left1(vex::PORT1, true);
-vex::motor left2(vex::PORT2, true);
-vex::motor left3(vex::PORT3, true);
-vex::motor left4(vex::PORT4, true);
+vex::motor left1(vex::PORT13, true);
+vex::motor left2(vex::PORT16, true);
+vex::motor left3(vex::PORT18, true);
+vex::motor left4(vex::PORT11, true);
 vex::motor_group left_motors(left1, left2, left3, left4);
 
-vex::motor right1(vex::PORT5, false);
-vex::motor right2(vex::PORT6, false);
-vex::motor right3(vex::PORT7, false);
-vex::motor right4(vex::PORT9, false);
+vex::motor right1(vex::PORT12, false);
+vex::motor right2(vex::PORT15, false);
+vex::motor right3(vex::PORT17, false);
+vex::motor right4(vex::PORT20, false);
 vex::motor_group right_motors(right1, right2, right3, right4);
+
+vex::motor lift_left(vex::PORT9, false);
+vex::motor lift_right(vex::PORT10, true);
+vex::motor_group lift_motors(lift_left, lift_right);
+
 
 std::vector<Initialization> inits = {};
 
@@ -41,6 +46,8 @@ Initializer initializer([]() {
                                                {"right2", right2},
                                                {"right3", right3},
                                                {"right4", right4},
+                                               {"lift_left", lift_left},
+                                               {"lift_right", lift_right},
                                            })}
                          ))
                             .handle());
