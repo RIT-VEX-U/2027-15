@@ -1,0 +1,10 @@
+[alias]
+# Developer workflow shortcuts
+c = "check"
+t = "test"
+b = "build"
+r = "run"
+lint = "clippy --all-targets -- -D warnings"
+fmt-check = "fmt --check"
+sim = "run --example"
+docs = "doc --no-deps --open"

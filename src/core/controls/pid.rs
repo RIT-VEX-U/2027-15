@@ -106,6 +106,33 @@ impl PID {
         self.update_with_v_setpt(sensor_val, 0.0)
     }
 
+    /// Updates the PID controller with an explicit timestep dt (seconds).
+    pub fn update_dt(&mut self, sensor_val: f64, dt: f64) -> f64 {
+        self.sensor_val = sensor_val;
+
+        let d_term = if dt > 1e-7 {
+            self.config.d * ((self.get_error() - self.last_error) / dt)
+        } else {
+            0.0
+        };
+
+        self.out = (self.config.p * self.get_error()) + d_term;
+
+        let limits_exist = self.lower_limit != 0.0 || self.upper_limit != 0.0;
+        if !limits_exist || (self.out < self.upper_limit && self.out > self.lower_limit) {
+            self.accum_error += dt * self.get_error();
+        }
+
+        self.out += self.config.i * self.accum_error;
+        self.last_error = self.get_error();
+
+        if limits_exist {
+            self.out = clamp(self.out, self.lower_limit, self.upper_limit);
+        }
+
+        self.out
+    }
+
     /// Computes the error between setpoint and sensor value.
     pub fn get_error(&self) -> f64 {
         match self.config.error_method {
