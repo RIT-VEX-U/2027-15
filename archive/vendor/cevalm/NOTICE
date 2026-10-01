@@ -1,0 +1,30 @@
+cevalm licensing and attribution
+================================
+
+Copyright (C) 2026 cevalm contributors.
+
+The combined cevalm distribution is provided under the GNU Lesser General
+Public License, version 2.1 or (at your option) any later version. The complete
+LGPL 2.1 text is in LICENSE.
+
+Portions derived from Sun fdlibm remain available under the SunPro license.
+Its required copyright and permission notice is preserved in the applicable
+headers and reproduced in LICENSES/SunPro.txt.
+
+The fpclassify implementation includes material derived from a Red Hat fdlibm
+source. Its required copyright and permission notice is preserved in
+include/cevalm_classify.hpp and reproduced in LICENSES/Red-Hat-FDLIBM.txt.
+
+The following headers include material derived from GNU C Library fdlibm
+sources distributed under LGPL-2.1-or-later:
+
+  include/cevalm_exact.hpp
+  include/cevalm_exp2_table.hpp
+  include/cevalm_power.hpp
+  include/cevalm_remainder.hpp
+  include/cevalm_round.hpp
+  include/cevalm_special.hpp
+
+These attributions apply to the source portions identified in their headers.
+No endorsement by Sun Microsystems, Red Hat, or the Free Software Foundation
+is implied.

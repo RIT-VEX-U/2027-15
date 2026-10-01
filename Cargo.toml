@@ -1,0 +1,20 @@
+[package]
+name = "robot_2027"
+version = "0.1.0"
+edition = "2021"
+authors = ["RIT VEX U <robotics@rit.edu>"]
+description = "VEX U Autonomous and Driver Control Robotics System ported to safe, idiomatic Rust"
+
+[dependencies]
+nalgebra = { version = "0.35.0", features = ["std"] }
+
+[dev-dependencies]
+approx = "0.5.1"
+
+[[bin]]
+name = "robot_2027"
+path = "src/main.rs"
+
+[lib]
+name = "robot_2027"
+path = "src/lib.rs"
