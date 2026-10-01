@@ -2,10 +2,10 @@
 //!
 //! Mirrors `core/subsystems/lift.h`.
 
-use std::collections::BTreeMap;
-use std::sync::{Arc, Mutex};
 use crate::core::controls::pid::{Pid, PidConfig};
 use crate::mantle::motor::{DirectionType, MotorGroup, RotationUnits, VoltageUnits};
+use std::collections::BTreeMap;
+use std::sync::{Arc, Mutex};
 
 /// Physical and algorithmic configuration for lift subsystems.
 #[derive(Debug, Clone)]
@@ -73,10 +73,7 @@ impl<P: Ord + Clone> Lift<P> {
         if let Some(ref sensor) = self.custom_sensor {
             sensor()
         } else {
-            self.motors
-                .lock()
-                .unwrap()
-                .position(RotationUnits::Rev)
+            self.motors.lock().unwrap().position(RotationUnits::Rev)
         }
     }
 
@@ -102,12 +99,20 @@ impl<P: Ord + Clone> Lift<P> {
 
         if up_ctrl && cur_pos < self.cfg.softstop_up {
             let m = self.motors.lock().unwrap();
-            m.spin(DirectionType::Forward, self.cfg.up_speed, VoltageUnits::Volt);
+            m.spin(
+                DirectionType::Forward,
+                self.cfg.up_speed,
+                VoltageUnits::Volt,
+            );
             self.setpoint = cur_pos;
             self.pid.set_target(cur_pos);
         } else if down_ctrl && cur_pos > self.cfg.softstop_down {
             let m = self.motors.lock().unwrap();
-            m.spin(DirectionType::Reverse, self.cfg.down_speed, VoltageUnits::Volt);
+            m.spin(
+                DirectionType::Reverse,
+                self.cfg.down_speed,
+                VoltageUnits::Volt,
+            );
             self.setpoint = cur_pos;
             self.pid.set_target(cur_pos);
         } else {

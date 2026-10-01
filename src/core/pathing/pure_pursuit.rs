@@ -46,7 +46,11 @@ impl Path {
 
                             if p1.distance(p2) < radius {
                                 valid = false;
-                                return Self { points, radius, valid };
+                                return Self {
+                                    points,
+                                    radius,
+                                    valid,
+                                };
                             }
                             t2 += step_j.max(0.01);
                         }
@@ -56,7 +60,11 @@ impl Path {
             }
         }
 
-        Self { points, radius, valid }
+        Self {
+            points,
+            radius,
+            valid,
+        }
     }
 
     /// Returns the points in the path.

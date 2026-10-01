@@ -2,11 +2,11 @@
 //!
 //! Mirrors `core/subsystems/odometry/odometry_3wheel.h` and `core/subsystems/odometry/odometry_3wheel.cpp`.
 
-use std::f64::consts::PI;
 use super::odometry_base::{smallest_angle, Odometry, OdometryState};
 use crate::core::geometry::{Pose2d, Rotation2d, Translation2d};
 use crate::core::math::math_util::wrap_angle_rad;
 use crate::core::time::Timer;
+use std::f64::consts::PI;
 
 /// Configuration for 3-wheel tracking setup.
 #[derive(Debug, Clone, Copy)]
@@ -96,7 +96,11 @@ impl Odometry3Wheel {
         let new_pos_vec = old_pos.translation() + global_displacement;
         let new_rot_rad = wrap_angle_rad(old_pos.rotation().radians() + delta_angle_rad);
 
-        Pose2d::new(new_pos_vec.x(), new_pos_vec.y(), Rotation2d::new(new_rot_rad))
+        Pose2d::new(
+            new_pos_vec.x(),
+            new_pos_vec.y(),
+            Rotation2d::new(new_rot_rad),
+        )
     }
 }
 
@@ -189,8 +193,7 @@ mod tests {
         let old_pos = Pose2d::new(0.0, 0.0, Rotation2d::from_degrees(90.0));
         // Rotate 360 deg forward for both parallel wheels
         let delta_deg = 360.0;
-        let new_pos =
-            Odometry3Wheel::calculate_new_pos(delta_deg, delta_deg, 0.0, &old_pos, &cfg);
+        let new_pos = Odometry3Wheel::calculate_new_pos(delta_deg, delta_deg, 0.0, &old_pos, &cfg);
 
         let expected_dist = PI * 2.75;
         assert!((new_pos.y() - expected_dist).abs() < 1e-4);

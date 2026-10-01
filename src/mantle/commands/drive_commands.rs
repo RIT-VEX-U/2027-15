@@ -2,7 +2,6 @@
 //!
 //! Mirrors `core/utils/command_structure/drive_commands.h` and `core/utils/command_structure/drive_commands.cpp`.
 
-use std::sync::{Arc, Mutex};
 use super::auto_command::AutoCommand;
 use crate::core::controls::feedback_base::Feedback;
 use crate::core::geometry::{Pose2d, Translation2d};
@@ -10,6 +9,7 @@ use crate::core::pathing::pure_pursuit::Path;
 use crate::mantle::motor::DirectionType;
 use crate::mantle::subsystems::odometry::Odometry;
 use crate::mantle::subsystems::tank_drive::TankDrive;
+use std::sync::{Arc, Mutex};
 
 /// AutoCommand wrapping `TankDrive::drive_forward`.
 pub struct DriveForwardCommand {

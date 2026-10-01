@@ -16,7 +16,11 @@ pub struct Initialization {
 
 impl Initialization {
     /// Creates a new initialization entry.
-    pub fn new(name: impl Into<String>, init: impl Fn() + Send + Sync + 'static, meta: u32) -> Self {
+    pub fn new(
+        name: impl Into<String>,
+        init: impl Fn() + Send + Sync + 'static,
+        meta: u32,
+    ) -> Self {
         Self {
             name: name.into(),
             init: Arc::new(init),
@@ -32,7 +36,6 @@ impl Initialization {
 
 /// Common selection utilities and wrappers.
 pub mod selector {
-    
 
     /// Constant indicating that no valid initialization has been selected yet.
     pub const NO_SELECTION_INDEX: usize = usize::MAX;

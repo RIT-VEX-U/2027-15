@@ -1,8 +1,8 @@
 //! Concrete VEX V5 Sensor drivers: Inertial Sensor (IMU) and Optical/Quadrature Encoders.
 
-use std::sync::{Arc, Mutex};
 pub use crate::core::units::RotationUnits;
 pub use crate::mantle::sensor::{Encoder as EncoderTrait, InertialSensor as InertialTrait};
+use std::sync::{Arc, Mutex};
 
 /// VEX V5 Inertial Sensor (IMU) providing 3-axis gyro and accelerometer data.
 #[derive(Debug, Clone, Default)]

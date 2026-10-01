@@ -68,10 +68,13 @@ impl Feedback for MotionController {
     fn update(&mut self, sensor_val: f64) -> f64 {
         self.cur_motion = self.profile.calculate(self.tmr.time_sec());
         self.pid.set_target(self.cur_motion.pos);
-        self.pid.update_with_v_setpt(sensor_val, self.cur_motion.vel);
+        self.pid
+            .update_with_v_setpt(sensor_val, self.cur_motion.vel);
 
         self.out = self.pid.get()
-            + self.ff.calculate(self.cur_motion.vel, self.cur_motion.acc, self.pid.get());
+            + self
+                .ff
+                .calculate(self.cur_motion.vel, self.cur_motion.acc, self.pid.get());
 
         if self.lower_limit != self.upper_limit {
             self.out = clamp(self.out, self.lower_limit, self.upper_limit);

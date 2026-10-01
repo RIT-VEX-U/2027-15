@@ -3,7 +3,11 @@ name = "robot_2027"
 version = "0.1.0"
 edition = "2021"
 authors = ["RIT VEX U <robotics@rit.edu>"]
-description = "VEX U Autonomous and Driver Control Robotics System ported to safe, idiomatic Rust"
+description = "VEX U Autonomous and Driver Control Robotics System in Safe, Idiomatic Rust"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+keywords = ["vex", "robotics", "odometry", "control-systems", "pure-pursuit"]
+categories = ["science::robotics", "embedded"]
 
 [dependencies]
 nalgebra = { version = "0.35.0", features = ["std"] }

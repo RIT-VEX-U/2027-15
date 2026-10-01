@@ -20,11 +20,7 @@ pub struct LinearPlantInversionFeedforward<const STATES: usize, const INPUTS: us
 
 impl<const STATES: usize, const INPUTS: usize> LinearPlantInversionFeedforward<STATES, INPUTS> {
     /// Constructs a feedforward controller from continuous system matrices and nominal timestep.
-    pub fn new(
-        a: SMatrix<f64, STATES, STATES>,
-        b: SMatrix<f64, STATES, INPUTS>,
-        dt: f64,
-    ) -> Self {
+    pub fn new(a: SMatrix<f64, STATES, STATES>, b: SMatrix<f64, STATES, INPUTS>, dt: f64) -> Self {
         let (ad, bd) = discretize_ab(&a, &b, dt);
         Self {
             ac: a,

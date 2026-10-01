@@ -2,12 +2,12 @@
 //!
 //! Mirrors `core/subsystems/odometry/odometry_tank.h` and `core/subsystems/odometry/odometry_tank.cpp`.
 
-use std::f64::consts::PI;
 use super::super::tank_drive::RobotSpecs;
 use super::odometry_base::{smallest_angle, Odometry, OdometryState};
-use crate::core::geometry::{Pose2d, Rotation2d, Translation2d};
 use crate::core::filter::{ExponentialMovingAverage, Filter};
+use crate::core::geometry::{Pose2d, Rotation2d, Translation2d};
 use crate::core::time::Timer;
+use std::f64::consts::PI;
 
 /// Sensor inputs provider for tank odometry.
 pub enum TankWheelSensors {
@@ -73,7 +73,11 @@ impl OdometryTank {
         let curr_point = curr_pos.translation();
         let new_point = curr_point + chg_point;
 
-        let new_pos = Pose2d::new(new_point.x(), new_point.y(), Rotation2d::from_degrees(angle_deg));
+        let new_pos = Pose2d::new(
+            new_point.x(),
+            new_point.y(),
+            Rotation2d::from_degrees(angle_deg),
+        );
         (new_pos, lside_revs, rside_revs)
     }
 }

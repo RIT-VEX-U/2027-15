@@ -117,7 +117,11 @@ impl<C1: Condition, C2: Condition> Condition for AndCondition<C1, C2> {
     }
 
     fn to_string_desc(&self) -> String {
-        format!("({} AND {})", self.c1.to_string_desc(), self.c2.to_string_desc())
+        format!(
+            "({} AND {})",
+            self.c1.to_string_desc(),
+            self.c2.to_string_desc()
+        )
     }
 }
 
@@ -133,6 +137,10 @@ impl<C1: Condition, C2: Condition> Condition for OrCondition<C1, C2> {
     }
 
     fn to_string_desc(&self) -> String {
-        format!("({} OR {})", self.c1.to_string_desc(), self.c2.to_string_desc())
+        format!(
+            "({} OR {})",
+            self.c1.to_string_desc(),
+            self.c2.to_string_desc()
+        )
     }
 }

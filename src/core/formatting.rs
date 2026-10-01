@@ -16,8 +16,8 @@ mod tests {
 
     #[test]
     fn test_formatting() {
-        assert_eq!(double_to_string(3.14159, 2), "3.14");
-        assert_eq!(double_to_string(3.14159, 4), "3.1416");
+        assert_eq!(double_to_string(1.23456, 2), "1.23");
+        assert_eq!(double_to_string(1.23456, 4), "1.2346");
         assert_eq!(int_to_string(42), "42");
     }
 }

@@ -107,7 +107,10 @@ pub struct FloatPart {
 
 impl FloatPart {
     /// Creates a new FloatPart.
-    pub fn new(name: impl Into<String>, fetcher: Option<Box<dyn Fn() -> f32 + Send + Sync>>) -> Self {
+    pub fn new(
+        name: impl Into<String>,
+        fetcher: Option<Box<dyn Fn() -> f32 + Send + Sync>>,
+    ) -> Self {
         Self {
             name: name.into(),
             value: 0.0,
@@ -160,7 +163,10 @@ pub struct DoublePart {
 
 impl DoublePart {
     /// Creates a new DoublePart.
-    pub fn new(name: impl Into<String>, fetcher: Option<Box<dyn Fn() -> f64 + Send + Sync>>) -> Self {
+    pub fn new(
+        name: impl Into<String>,
+        fetcher: Option<Box<dyn Fn() -> f64 + Send + Sync>>,
+    ) -> Self {
         Self {
             name: name.into(),
             value: 0.0,
@@ -213,7 +219,10 @@ pub struct StringPart {
 
 impl StringPart {
     /// Creates a new StringPart.
-    pub fn new(name: impl Into<String>, fetcher: Option<Box<dyn Fn() -> String + Send + Sync>>) -> Self {
+    pub fn new(
+        name: impl Into<String>,
+        fetcher: Option<Box<dyn Fn() -> String + Send + Sync>>,
+    ) -> Self {
         Self {
             name: name.into(),
             value: String::new(),

@@ -158,12 +158,12 @@ An automated dependency scan was performed across all module boundaries:
 
 ---
 
-## 5. Archival Summary
+## 5. Deprecation & Cleanup Summary
 
-All legacy C++ files and build artifacts remain archived in `archive/`:
-- `archive/core/`: Complete legacy C++ subsystem, control, geometry, and utility sources/headers.
-- `archive/include/`: C++ header includes (`competition/`, `core.h`, `robot-config.h`, `vex.h`).
-- `archive/src/`: Original `main.cpp`, `robot-config.cpp`, and competition routines.
-- `archive/vendor/`: Legacy Eigen, GCEM, and CEVALM dependencies.
-- `archive/build_system/`, `archive/Makefile`, `archive/project.toml`: Legacy C++ build configurations.
-- `archive/.clangd`, `archive/.clang-format`: C++ editor tooling configs.
+Per directive, all legacy C++ assets, submodules, temporary archives, and deprecated tooling have been permanently purged:
+- `archive/`: Permanently removed.
+- `.gitmodules`: Deleted (legacy Eigen, GCEM, and CEVALM submodules replaced by native Rust crates).
+- Legacy C++ build systems (`build_system/`, `Makefile`, `project.toml`, `.clangd`, `.clang-format`): Deleted.
+- CI/CD & IDE configs: Replaced with modern Rust workflows (`.github/workflows/rust.yml`, rust-analyzer VS Code configuration).
+
+The repository root is now a pure, clean, ready-to-build native Rust project.

@@ -1,6 +1,17 @@
-/bin
-/build
-__pycache__/
-.vscode/BROWSE.VC.DB*
-/.cache
-/target
+# Rust build artifacts
+/target/
+Cargo.lock
+
+# IDE & Editor files
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Caching
+/.cache/

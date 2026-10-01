@@ -88,7 +88,10 @@ pub type WaitUntil<C> = WaitUntilCondition<C>;
 
 impl<C: Condition> WaitUntilCondition<C> {
     pub fn new(cond: C) -> Self {
-        Self { cond, timeout: 10.0 }
+        Self {
+            cond,
+            timeout: 10.0,
+        }
     }
 }
 
@@ -229,7 +232,11 @@ pub struct Branch<C: Condition> {
 }
 
 impl<C: Condition> Branch<C> {
-    pub fn new(cond: C, false_choice: Box<dyn AutoCommand>, true_choice: Box<dyn AutoCommand>) -> Self {
+    pub fn new(
+        cond: C,
+        false_choice: Box<dyn AutoCommand>,
+        true_choice: Box<dyn AutoCommand>,
+    ) -> Self {
         Self {
             cond,
             true_choice,

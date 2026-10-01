@@ -2,14 +2,14 @@
 //!
 //! Mirrors `core/subsystems/flywheel.h` and `core/subsystems/flywheel.cpp`.
 
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, Mutex};
-use std::thread::{self, JoinHandle};
-use std::time::Duration;
 use crate::core::controls::feedback_base::Feedback;
 use crate::core::controls::feedforward::FeedForward;
 use crate::core::filter::Filter;
 use crate::mantle::motor::{DirectionType, MotorGroup, VelocityUnits, VoltageUnits};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Mutex};
+use std::thread::{self, JoinHandle};
+use std::time::Duration;
 
 /// Subsystem controlling a high-inertia spinning flywheel using feedforward and feedback.
 pub struct Flywheel {

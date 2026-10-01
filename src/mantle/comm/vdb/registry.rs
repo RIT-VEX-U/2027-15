@@ -2,9 +2,11 @@
 //!
 //! Mirrors `core/device/vdb/registry-controller.hpp` and `registry-listener.hpp`.
 
-use std::collections::HashMap;
-use super::protocol::{make_header_byte, PacketFunction, PacketHeader, PacketReader, PacketType, PacketWriter};
+use super::protocol::{
+    make_header_byte, PacketFunction, PacketHeader, PacketReader, PacketType, PacketWriter,
+};
 use super::types::Part;
+use std::collections::HashMap;
 
 /// Manages registered telemetry and control channels.
 pub struct RegistryController {

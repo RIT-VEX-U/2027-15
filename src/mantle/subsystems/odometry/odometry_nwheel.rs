@@ -3,10 +3,10 @@
 //! Mirrors `core/subsystems/odometry/odometry_nwheel.h`.
 //! Integrates wheel displacements via Lie group $SE(2)$ matrix exponential.
 
-use nalgebra::{DMatrix, DVector};
 use super::odometry_base::{smallest_angle, Odometry, OdometryState};
 use crate::core::geometry::{Pose2d, Rotation2d, Twist2d};
 use crate::core::time::Timer;
+use nalgebra::{DMatrix, DVector};
 
 /// Configuration parameters for an arbitrary unpowered tracking wheel pod.
 #[derive(Debug, Clone, Copy)]
@@ -147,8 +147,12 @@ impl Odometry for OdometryNWheel {
             self.old_wheel_angles[i] = angle;
         }
 
-        let imu_angle = self.imu_reading_rad.as_ref().map(|f| -f() + self.angle_offset.to_radians());
-        let updated_pos = self.calculate_new_pos(&radian_deltas, &self.state.current_pos, imu_angle);
+        let imu_angle = self
+            .imu_reading_rad
+            .as_ref()
+            .map(|f| -f() + self.angle_offset.to_radians());
+        let updated_pos =
+            self.calculate_new_pos(&radian_deltas, &self.state.current_pos, imu_angle);
 
         let elapsed = self.timer.time_sec();
         if elapsed > 0.1 {

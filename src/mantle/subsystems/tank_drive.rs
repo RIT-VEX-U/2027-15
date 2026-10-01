@@ -2,8 +2,6 @@
 //!
 //! Mirrors `core/subsystems/tank_drive.h` and `core/subsystems/tank_drive.cpp`.
 
-use std::f64::consts::PI;
-use std::sync::{Arc, Mutex};
 use super::odometry::{smallest_angle, Odometry};
 use crate::core::controls::feedback_base::Feedback;
 use crate::core::controls::pid::{Pid, PidConfig};
@@ -11,6 +9,8 @@ use crate::core::geometry::{Pose2d, Rotation2d, Translation2d};
 use crate::core::math::math_util::{clamp, estimate_path_length, sign};
 use crate::core::pathing::pure_pursuit::{estimate_remaining_dist, get_lookahead, Path};
 use crate::mantle::motor::{DirectionType, MotorGroup, VoltageUnits};
+use std::f64::consts::PI;
+use std::sync::{Arc, Mutex};
 
 /// Physical and algorithmic configuration specification for differential / tank drive.
 #[derive(Debug, Clone)]
@@ -152,8 +152,11 @@ impl TankDrive {
     pub fn drive_tank_raw(&mut self, left_norm: f64, right_norm: f64) {
         self.left_motors
             .spin(DirectionType::Forward, left_norm * 12.0, VoltageUnits::Volt);
-        self.right_motors
-            .spin(DirectionType::Forward, right_norm * 12.0, VoltageUnits::Volt);
+        self.right_motors.spin(
+            DirectionType::Forward,
+            right_norm * 12.0,
+            VoltageUnits::Volt,
+        );
     }
 
     /// Modifies user inputs with exponential power curve while preserving sign.
@@ -281,7 +284,8 @@ impl TankDrive {
         if turn_in_place {
             self.arcade_throttle = 0.0;
         } else if slew_rate > 0.0 {
-            self.arcade_throttle += clamp(forward_back - self.arcade_throttle, -slew_rate, slew_rate);
+            self.arcade_throttle +=
+                clamp(forward_back - self.arcade_throttle, -slew_rate, slew_rate);
         } else {
             self.arcade_throttle = forward_back;
         }
@@ -392,7 +396,9 @@ impl TankDrive {
         let mut dist_left = current_pos.translation().distance(end_trans);
         let mut sign_dir = 1.0;
 
-        let angle_to_point = (y - current_pos.y()).atan2(x - current_pos.x()).to_degrees();
+        let angle_to_point = (y - current_pos.y())
+            .atan2(x - current_pos.x())
+            .to_degrees();
         let mut angle = (current_pos.rotation().degrees() - angle_to_point) % 360.0;
         if angle > 360.0 {
             angle -= 360.0;
@@ -411,7 +417,9 @@ impl TankDrive {
             dist_left *= angle.to_radians().cos().abs();
         }
 
-        let heading = (y - current_pos.y()).atan2(x - current_pos.x()).to_degrees();
+        let heading = (y - current_pos.y())
+            .atan2(x - current_pos.x())
+            .to_degrees();
         let delta_heading = if dir == DirectionType::Forward {
             smallest_angle(current_pos.rotation().degrees(), heading)
         } else {

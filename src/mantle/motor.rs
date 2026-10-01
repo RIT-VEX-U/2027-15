@@ -1,8 +1,10 @@
 //! Motor hardware abstraction, traits, motor groups, and mock interfaces.
 
+pub use crate::core::units::{
+    BrakeMode, BrakeType, Direction, DirectionType, RotationUnits, VelocityUnits, VoltageUnits,
+};
 use std::fmt::Debug;
 use std::sync::{Arc, Mutex};
-pub use crate::core::units::{BrakeMode, BrakeType, Direction, DirectionType, RotationUnits, VelocityUnits, VoltageUnits};
 
 /// Motor internal gear cartridge setting.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]

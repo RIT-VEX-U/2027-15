@@ -1,10 +1,10 @@
 //! Display abstractions: Color, Display trait, GraphDrawer, ScreenController, and legacy widgets.
 
-use std::fmt::Debug;
-use std::sync::{Arc, Mutex};
 use crate::core::geometry::{Point2d, Rect, Translation2d};
 use crate::core::time::Timer;
 use crate::mantle::motor::Motor;
+use std::fmt::Debug;
+use std::sync::{Arc, Mutex};
 
 /// RGB color structure for drawing on graphical displays.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -113,12 +113,22 @@ impl MockDisplay {
 }
 
 impl Display for MockDisplay {
-    fn pressing(&self) -> bool { self.touch_pressed }
-    fn x_position(&self) -> i32 { self.touch_x }
-    fn y_position(&self) -> i32 { self.touch_y }
+    fn pressing(&self) -> bool {
+        self.touch_pressed
+    }
+    fn x_position(&self) -> i32 {
+        self.touch_x
+    }
+    fn y_position(&self) -> i32 {
+        self.touch_y
+    }
     fn clear_screen(&mut self) {}
-    fn set_pen_color(&mut self, color: Color) { self.pen = color; }
-    fn set_fill_color(&mut self, color: Color) { self.fill = color; }
+    fn set_pen_color(&mut self, color: Color) {
+        self.pen = color;
+    }
+    fn set_fill_color(&mut self, color: Color) {
+        self.fill = color;
+    }
     fn draw_rectangle(&mut self, _x: i32, _y: i32, _width: i32, _height: i32) {}
     fn fill_rectangle(&mut self, _x: i32, _y: i32, _width: i32, _height: i32) {}
     fn draw_circle(&mut self, _x: i32, _y: i32, _radius: i32) {}
@@ -191,11 +201,22 @@ impl GraphDrawer {
     pub fn draw(&mut self, screen: &mut dyn Display, rect: Rect) {
         if self.border {
             screen.set_pen_color(Color::WHITE);
-            screen.draw_rectangle(rect.x as i32, rect.y as i32, rect.width as i32, rect.height as i32);
+            screen.draw_rectangle(
+                rect.x as i32,
+                rect.y as i32,
+                rect.width as i32,
+                rect.height as i32,
+            );
         }
 
-        let n = if !self.series.is_empty() { self.series[0].len() } else { return; };
-        if n < 2 { return; }
+        let n = if !self.series.is_empty() {
+            self.series[0].len()
+        } else {
+            return;
+        };
+        if n < 2 {
+            return;
+        }
 
         for (s_idx, s) in self.series.iter().enumerate() {
             let color = self.colors.get(s_idx).copied().unwrap_or(Color::WHITE);
@@ -227,7 +248,11 @@ pub struct ButtonWidget {
 }
 
 impl ButtonWidget {
-    pub fn new(rect: Rect, name: impl Into<String>, on_press: impl FnMut() + Send + Sync + 'static) -> Self {
+    pub fn new(
+        rect: Rect,
+        name: impl Into<String>,
+        on_press: impl FnMut() + Send + Sync + 'static,
+    ) -> Self {
         Self {
             on_press: Box::new(on_press),
             rect,
@@ -249,8 +274,18 @@ impl ButtonWidget {
     pub fn draw(&self, screen: &mut dyn Display, _draw_border: bool, _offset: i32) {
         screen.set_pen_color(Color::WHITE);
         screen.set_fill_color(Color::new(40, 40, 40));
-        screen.fill_rectangle(self.rect.x as i32, self.rect.y as i32, self.rect.width as i32, self.rect.height as i32);
-        screen.draw_rectangle(self.rect.x as i32, self.rect.y as i32, self.rect.width as i32, self.rect.height as i32);
+        screen.fill_rectangle(
+            self.rect.x as i32,
+            self.rect.y as i32,
+            self.rect.width as i32,
+            self.rect.height as i32,
+        );
+        screen.draw_rectangle(
+            self.rect.x as i32,
+            self.rect.y as i32,
+            self.rect.width as i32,
+            self.rect.height as i32,
+        );
         screen.print_at(self.rect.x as i32 + 10, self.rect.y as i32 + 20, &self.name);
     }
 }
@@ -279,7 +314,11 @@ impl Page for StatsPage {
         screen.set_pen_color(Color::WHITE);
         screen.print_at(10, 20, "Motor Diagnostics:");
         for (i, (name, m)) in self.motors.iter().enumerate() {
-            let temp = if let Ok(lock) = m.lock() { lock.temperature() } else { 0.0 };
+            let temp = if let Ok(lock) = m.lock() {
+                lock.temperature()
+            } else {
+                0.0
+            };
             let text = format!("{}: {:.1} C", name, temp);
             let y = 45 + (i as i32 * 20);
             screen.print_at(10, y, &text);

@@ -17,11 +17,7 @@ where
 }
 
 /// First order Euler integration for `dx/dt = f(x)`.
-pub fn euler_without_input<const X: usize, F>(
-    f: &F,
-    x: &SVector<f64, X>,
-    h: f64,
-) -> SVector<f64, X>
+pub fn euler_without_input<const X: usize, F>(f: &F, x: &SVector<f64, X>, h: f64) -> SVector<f64, X>
 where
     F: Fn(&SVector<f64, X>) -> SVector<f64, X>,
 {
@@ -60,11 +56,7 @@ where
 }
 
 /// Second order explicit midpoint Runge-Kutta (RK2) for `dx/dt = f(x)`.
-pub fn rk2_without_input<const X: usize, F>(
-    f: &F,
-    x: &SVector<f64, X>,
-    h: f64,
-) -> SVector<f64, X>
+pub fn rk2_without_input<const X: usize, F>(f: &F, x: &SVector<f64, X>, h: f64) -> SVector<f64, X>
 where
     F: Fn(&SVector<f64, X>) -> SVector<f64, X>,
 {
@@ -112,11 +104,7 @@ where
 }
 
 /// Classic 4th-order Runge-Kutta (RK4) for `dx/dt = f(x)`.
-pub fn rk4_without_input<const X: usize, F>(
-    f: &F,
-    x: &SVector<f64, X>,
-    h: f64,
-) -> SVector<f64, X>
+pub fn rk4_without_input<const X: usize, F>(f: &F, x: &SVector<f64, X>, h: f64) -> SVector<f64, X>
 where
     F: Fn(&SVector<f64, X>) -> SVector<f64, X>,
 {

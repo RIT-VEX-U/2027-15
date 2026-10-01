@@ -1,7 +1,7 @@
 //! VEX V5 Brain, Screen (LCD), and SD card abstractions.
 
-use std::sync::{Arc, Mutex};
 pub use crate::mantle::display::{Color, Display};
+use std::sync::{Arc, Mutex};
 
 /// Touch state on the V5 Brain LCD screen.
 #[derive(Debug, Clone, Copy, Default)]

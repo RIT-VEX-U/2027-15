@@ -1,6 +1,5 @@
 //! Robot hardware configuration, port mapping, and global subsystem wiring.
 
-use std::sync::{Arc, Mutex};
 use super::ports::*;
 use super::specs::RobotSpecs;
 use crate::crust::brain::Brain;
@@ -11,6 +10,7 @@ use crate::mantle::display::{LegacyPage, ScreenController, StatsPage};
 use crate::mantle::initializer::Initializer;
 use crate::mantle::motor::{Motor as MotorTrait, MotorGroup};
 use crate::mantle::subsystems::tank_drive::TankDrive;
+use std::sync::{Arc, Mutex};
 
 /// Hardware container aggregating all sensors, motors, and subsystems on the robot.
 pub struct RobotHardware {
@@ -63,10 +63,14 @@ impl RobotHardware {
         let left3 = V5Motor::new(PORT_LEFT_DRIVE_3, true);
         let left4 = V5Motor::new(PORT_LEFT_DRIVE_4, true);
 
-        let left1_m: Arc<Mutex<Box<dyn MotorTrait>>> = Arc::new(Mutex::new(Box::new(left1.clone())));
-        let left2_m: Arc<Mutex<Box<dyn MotorTrait>>> = Arc::new(Mutex::new(Box::new(left2.clone())));
-        let left3_m: Arc<Mutex<Box<dyn MotorTrait>>> = Arc::new(Mutex::new(Box::new(left3.clone())));
-        let left4_m: Arc<Mutex<Box<dyn MotorTrait>>> = Arc::new(Mutex::new(Box::new(left4.clone())));
+        let left1_m: Arc<Mutex<Box<dyn MotorTrait>>> =
+            Arc::new(Mutex::new(Box::new(left1.clone())));
+        let left2_m: Arc<Mutex<Box<dyn MotorTrait>>> =
+            Arc::new(Mutex::new(Box::new(left2.clone())));
+        let left3_m: Arc<Mutex<Box<dyn MotorTrait>>> =
+            Arc::new(Mutex::new(Box::new(left3.clone())));
+        let left4_m: Arc<Mutex<Box<dyn MotorTrait>>> =
+            Arc::new(Mutex::new(Box::new(left4.clone())));
 
         let left_motors = MotorGroup::new_with_motors(vec![
             left1_m.clone(),
@@ -81,10 +85,14 @@ impl RobotHardware {
         let right3 = V5Motor::new(PORT_RIGHT_DRIVE_3, false);
         let right4 = V5Motor::new(PORT_RIGHT_DRIVE_4, false);
 
-        let right1_m: Arc<Mutex<Box<dyn MotorTrait>>> = Arc::new(Mutex::new(Box::new(right1.clone())));
-        let right2_m: Arc<Mutex<Box<dyn MotorTrait>>> = Arc::new(Mutex::new(Box::new(right2.clone())));
-        let right3_m: Arc<Mutex<Box<dyn MotorTrait>>> = Arc::new(Mutex::new(Box::new(right3.clone())));
-        let right4_m: Arc<Mutex<Box<dyn MotorTrait>>> = Arc::new(Mutex::new(Box::new(right4.clone())));
+        let right1_m: Arc<Mutex<Box<dyn MotorTrait>>> =
+            Arc::new(Mutex::new(Box::new(right1.clone())));
+        let right2_m: Arc<Mutex<Box<dyn MotorTrait>>> =
+            Arc::new(Mutex::new(Box::new(right2.clone())));
+        let right3_m: Arc<Mutex<Box<dyn MotorTrait>>> =
+            Arc::new(Mutex::new(Box::new(right3.clone())));
+        let right4_m: Arc<Mutex<Box<dyn MotorTrait>>> =
+            Arc::new(Mutex::new(Box::new(right4.clone())));
 
         let right_motors = MotorGroup::new_with_motors(vec![
             right1_m.clone(),
@@ -97,13 +105,12 @@ impl RobotHardware {
         let lift_left = V5Motor::new(PORT_LIFT_LEFT, false);
         let lift_right = V5Motor::new(PORT_LIFT_RIGHT, true);
 
-        let lift_l_m: Arc<Mutex<Box<dyn MotorTrait>>> = Arc::new(Mutex::new(Box::new(lift_left.clone())));
-        let lift_r_m: Arc<Mutex<Box<dyn MotorTrait>>> = Arc::new(Mutex::new(Box::new(lift_right.clone())));
+        let lift_l_m: Arc<Mutex<Box<dyn MotorTrait>>> =
+            Arc::new(Mutex::new(Box::new(lift_left.clone())));
+        let lift_r_m: Arc<Mutex<Box<dyn MotorTrait>>> =
+            Arc::new(Mutex::new(Box::new(lift_right.clone())));
 
-        let lift_motors = MotorGroup::new_with_motors(vec![
-            lift_l_m.clone(),
-            lift_r_m.clone(),
-        ]);
+        let lift_motors = MotorGroup::new_with_motors(vec![lift_l_m.clone(), lift_r_m.clone()]);
 
         let robot_specs = RobotSpecs::default();
         let drive_sys = Arc::new(Mutex::new(TankDrive::new(

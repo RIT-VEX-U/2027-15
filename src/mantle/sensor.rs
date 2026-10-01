@@ -1,7 +1,7 @@
 //! Sensor hardware abstractions, traits, custom encoders, and mock devices.
 
-use std::fmt::Debug;
 pub use crate::core::units::RotationUnits;
+use std::fmt::Debug;
 
 /// Abstract rotary encoder interface.
 pub trait Encoder: Send + Sync + Debug {

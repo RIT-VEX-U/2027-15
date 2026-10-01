@@ -87,87 +87,192 @@ define_unit!(Angle, "Angle measurement (Base: radians)");
 define_unit!(Velocity, "Linear velocity (Base: meters/second)");
 define_unit!(Acceleration, "Linear acceleration (Base: meters/second^2)");
 define_unit!(AngularVelocity, "Angular velocity (Base: radians/second)");
-define_unit!(AngularAcceleration, "Angular acceleration (Base: radians/second^2)");
+define_unit!(
+    AngularAcceleration,
+    "Angular acceleration (Base: radians/second^2)"
+);
 define_unit!(Voltage, "Electrical potential (Base: Volts)");
 define_unit!(Current, "Electric current (Base: Amperes)");
 define_unit!(Torque, "Torque (Base: Newton-meters)");
 
-define_unit!(AngularProportionalGain, "Angular Proportional Gain (Base: Volts / radian)");
-define_unit!(LinearProportionalGain, "Linear Proportional Gain (Base: Volts / meter)");
-define_unit!(LinearVelocityFeedforward, "Linear Velocity Feedforward (Base: Volts / (meter/second))");
-define_unit!(AngularVelocityFeedforward, "Angular Velocity Feedforward (Base: Volts / (radian/second))");
+define_unit!(
+    AngularProportionalGain,
+    "Angular Proportional Gain (Base: Volts / radian)"
+);
+define_unit!(
+    LinearProportionalGain,
+    "Linear Proportional Gain (Base: Volts / meter)"
+);
+define_unit!(
+    LinearVelocityFeedforward,
+    "Linear Velocity Feedforward (Base: Volts / (meter/second))"
+);
+define_unit!(
+    AngularVelocityFeedforward,
+    "Angular Velocity Feedforward (Base: Volts / (radian/second))"
+);
 
 impl Length {
-    pub fn meters(m: f64) -> Self { Self(m) }
-    pub fn inches(inch: f64) -> Self { Self(inch * 0.0254) }
-    pub fn feet(ft: f64) -> Self { Self(ft * 0.3048) }
-    pub fn cm(cm: f64) -> Self { Self(cm * 0.01) }
-    pub fn mm(mm: f64) -> Self { Self(mm * 0.001) }
-    pub fn tiles(tile: f64) -> Self { Self::inches(tile * 23.75) }
+    pub fn meters(m: f64) -> Self {
+        Self(m)
+    }
+    pub fn inches(inch: f64) -> Self {
+        Self(inch * 0.0254)
+    }
+    pub fn feet(ft: f64) -> Self {
+        Self(ft * 0.3048)
+    }
+    pub fn cm(cm: f64) -> Self {
+        Self(cm * 0.01)
+    }
+    pub fn mm(mm: f64) -> Self {
+        Self(mm * 0.001)
+    }
+    pub fn tiles(tile: f64) -> Self {
+        Self::inches(tile * 23.75)
+    }
 
-    pub fn to_meters(&self) -> f64 { self.0 }
-    pub fn to_inches(&self) -> f64 { self.0 / 0.0254 }
-    pub fn to_feet(&self) -> f64 { self.0 / 0.3048 }
-    pub fn to_cm(&self) -> f64 { self.0 * 100.0 }
-    pub fn to_mm(&self) -> f64 { self.0 * 1000.0 }
-    pub fn to_tiles(&self) -> f64 { self.to_inches() / 23.75 }
+    pub fn to_meters(&self) -> f64 {
+        self.0
+    }
+    pub fn to_inches(&self) -> f64 {
+        self.0 / 0.0254
+    }
+    pub fn to_feet(&self) -> f64 {
+        self.0 / 0.3048
+    }
+    pub fn to_cm(&self) -> f64 {
+        self.0 * 100.0
+    }
+    pub fn to_mm(&self) -> f64 {
+        self.0 * 1000.0
+    }
+    pub fn to_tiles(&self) -> f64 {
+        self.to_inches() / 23.75
+    }
 }
 
 impl Time {
-    pub fn seconds(s: f64) -> Self { Self(s) }
-    pub fn milliseconds(ms: f64) -> Self { Self(ms / 1000.0) }
-    pub fn minutes(mins: f64) -> Self { Self(mins * 60.0) }
-    pub fn hours(hr: f64) -> Self { Self(hr * 3600.0) }
+    pub fn seconds(s: f64) -> Self {
+        Self(s)
+    }
+    pub fn milliseconds(ms: f64) -> Self {
+        Self(ms / 1000.0)
+    }
+    pub fn minutes(mins: f64) -> Self {
+        Self(mins * 60.0)
+    }
+    pub fn hours(hr: f64) -> Self {
+        Self(hr * 3600.0)
+    }
 
-    pub fn to_seconds(&self) -> f64 { self.0 }
-    pub fn to_milliseconds(&self) -> f64 { self.0 * 1000.0 }
-    pub fn to_minutes(&self) -> f64 { self.0 / 60.0 }
+    pub fn to_seconds(&self) -> f64 {
+        self.0
+    }
+    pub fn to_milliseconds(&self) -> f64 {
+        self.0 * 1000.0
+    }
+    pub fn to_minutes(&self) -> f64 {
+        self.0 / 60.0
+    }
 }
 
 impl Angle {
-    pub fn radians(rad: f64) -> Self { Self(rad) }
-    pub fn degrees(deg: f64) -> Self { Self(deg * (PI / 180.0)) }
-    pub fn revolutions(rev: f64) -> Self { Self(rev * 2.0 * PI) }
+    pub fn radians(rad: f64) -> Self {
+        Self(rad)
+    }
+    pub fn degrees(deg: f64) -> Self {
+        Self(deg * (PI / 180.0))
+    }
+    pub fn revolutions(rev: f64) -> Self {
+        Self(rev * 2.0 * PI)
+    }
 
-    pub fn to_radians(&self) -> f64 { self.0 }
-    pub fn to_degrees(&self) -> f64 { self.0 * (180.0 / PI) }
-    pub fn to_revolutions(&self) -> f64 { self.0 / (2.0 * PI) }
+    pub fn to_radians(&self) -> f64 {
+        self.0
+    }
+    pub fn to_degrees(&self) -> f64 {
+        self.0 * (180.0 / PI)
+    }
+    pub fn to_revolutions(&self) -> f64 {
+        self.0 / (2.0 * PI)
+    }
 }
 
 impl Velocity {
-    pub fn mps(mps: f64) -> Self { Self(mps) }
-    pub fn inps(inps: f64) -> Self { Self(inps * 0.0254) }
-    pub fn mph(mph: f64) -> Self { Self(mph * 0.44704) }
+    pub fn mps(mps: f64) -> Self {
+        Self(mps)
+    }
+    pub fn inps(inps: f64) -> Self {
+        Self(inps * 0.0254)
+    }
+    pub fn mph(mph: f64) -> Self {
+        Self(mph * 0.44704)
+    }
 
-    pub fn to_mps(&self) -> f64 { self.0 }
-    pub fn to_inps(&self) -> f64 { self.0 / 0.0254 }
-    pub fn to_mph(&self) -> f64 { self.0 / 0.44704 }
+    pub fn to_mps(&self) -> f64 {
+        self.0
+    }
+    pub fn to_inps(&self) -> f64 {
+        self.0 / 0.0254
+    }
+    pub fn to_mph(&self) -> f64 {
+        self.0 / 0.44704
+    }
 }
 
 impl AngularVelocity {
-    pub fn radps(radps: f64) -> Self { Self(radps) }
-    pub fn dps(dps: f64) -> Self { Self(dps * (PI / 180.0)) }
-    pub fn rpm(rpm: f64) -> Self { Self((rpm / 60.0) * 2.0 * PI) }
+    pub fn radps(radps: f64) -> Self {
+        Self(radps)
+    }
+    pub fn dps(dps: f64) -> Self {
+        Self(dps * (PI / 180.0))
+    }
+    pub fn rpm(rpm: f64) -> Self {
+        Self((rpm / 60.0) * 2.0 * PI)
+    }
 
-    pub fn to_radps(&self) -> f64 { self.0 }
-    pub fn to_dps(&self) -> f64 { self.0 * (180.0 / PI) }
-    pub fn to_rpm(&self) -> f64 { (self.0 / (2.0 * PI)) * 60.0 }
+    pub fn to_radps(&self) -> f64 {
+        self.0
+    }
+    pub fn to_dps(&self) -> f64 {
+        self.0 * (180.0 / PI)
+    }
+    pub fn to_rpm(&self) -> f64 {
+        (self.0 / (2.0 * PI)) * 60.0
+    }
 }
 
 impl Voltage {
-    pub fn volts(v: f64) -> Self { Self(v) }
-    pub fn millivolts(mv: f64) -> Self { Self(mv / 1000.0) }
+    pub fn volts(v: f64) -> Self {
+        Self(v)
+    }
+    pub fn millivolts(mv: f64) -> Self {
+        Self(mv / 1000.0)
+    }
 
-    pub fn to_volts(&self) -> f64 { self.0 }
-    pub fn to_millivolts(&self) -> f64 { self.0 * 1000.0 }
+    pub fn to_volts(&self) -> f64 {
+        self.0
+    }
+    pub fn to_millivolts(&self) -> f64 {
+        self.0 * 1000.0
+    }
 }
 
 impl Current {
-    pub fn amps(a: f64) -> Self { Self(a) }
-    pub fn milliamps(ma: f64) -> Self { Self(ma / 1000.0) }
+    pub fn amps(a: f64) -> Self {
+        Self(a)
+    }
+    pub fn milliamps(ma: f64) -> Self {
+        Self(ma / 1000.0)
+    }
 
-    pub fn to_amps(&self) -> f64 { self.0 }
-    pub fn to_milliamps(&self) -> f64 { self.0 * 1000.0 }
+    pub fn to_amps(&self) -> f64 {
+        self.0
+    }
+    pub fn to_milliamps(&self) -> f64 {
+        self.0 * 1000.0
+    }
 }
 
 // Cross-unit dimensional operators

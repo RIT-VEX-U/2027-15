@@ -26,12 +26,7 @@ impl<const STATES: usize, const INPUTS: usize, const OUTPUTS: usize>
         c: SMatrix<f64, OUTPUTS, STATES>,
         d: SMatrix<f64, OUTPUTS, INPUTS>,
     ) -> Self {
-        Self {
-            ac: a,
-            bc: b,
-            c,
-            d,
-        }
+        Self { ac: a, bc: b, c, d }
     }
 
     /// Returns the continuous system matrix A.
@@ -55,10 +50,7 @@ impl<const STATES: usize, const INPUTS: usize, const OUTPUTS: usize>
     }
 
     /// Discretizes the system over timestep `dt`.
-    pub fn disc_ab(
-        &self,
-        dt: f64,
-    ) -> (SMatrix<f64, STATES, STATES>, SMatrix<f64, STATES, INPUTS>) {
+    pub fn disc_ab(&self, dt: f64) -> (SMatrix<f64, STATES, STATES>, SMatrix<f64, STATES, INPUTS>) {
         discretize_ab(&self.ac, &self.bc, dt)
     }
 

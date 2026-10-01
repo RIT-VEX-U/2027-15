@@ -6,8 +6,8 @@
 //! Exposes mockable traits, hardware-independent abstractions, communication buses,
 //! composite motor groups, multi-sensor odometry fusion, and subsystem controllers.
 
-pub mod commands;
 pub mod comm;
+pub mod commands;
 pub mod controller;
 pub mod display;
 pub mod initializer;
@@ -15,8 +15,8 @@ pub mod motor;
 pub mod sensor;
 pub mod subsystems;
 
-pub use commands::*;
 pub use comm::*;
+pub use commands::*;
 pub use controller::*;
 pub use display::*;
 pub use initializer::*;

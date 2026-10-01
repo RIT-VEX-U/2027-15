@@ -54,11 +54,7 @@ impl ScaledSphericalSimplexSigmaPoints {
     }
 
     /// Computes sigma points from state mean and square-root covariance S.
-    pub fn square_root_sigma_points(
-        &self,
-        x: &DVector<f64>,
-        s: &DMatrix<f64>,
-    ) -> DMatrix<f64> {
+    pub fn square_root_sigma_points(&self, x: &DVector<f64>, s: &DMatrix<f64>) -> DMatrix<f64> {
         let mut sigmas = s * &self.c_mat;
         for mut col in sigmas.column_iter_mut() {
             col += x;

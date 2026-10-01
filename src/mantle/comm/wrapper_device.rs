@@ -2,10 +2,10 @@
 //!
 //! Mirrors `core/device/wrapper_device.hpp` and `wrapper_device.cpp`.
 
-use std::collections::VecDeque;
-use std::sync::Mutex;
 use super::cobs::CobssSerialDevice;
 use super::vdb::protocol::AbstractDevice;
+use std::collections::VecDeque;
+use std::sync::Mutex;
 
 /// Bridges VDP abstract packet sending to a COBS serial interface.
 pub struct VdbDevice {

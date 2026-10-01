@@ -2,11 +2,13 @@
 //!
 //! Mirrors `src/competition/opcontrol.cpp`.
 
+use crate::config::RobotHardware;
+use crate::mantle::motor::{
+    BrakeType as MotorBrakeType, DirectionType, RotationUnits, VoltageUnits,
+};
+use crate::mantle::subsystems::tank_drive::BrakeType;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
-use crate::config::RobotHardware;
-use crate::mantle::motor::{BrakeType as MotorBrakeType, DirectionType, RotationUnits, VoltageUnits};
-use crate::mantle::subsystems::tank_drive::BrakeType;
 
 /// Executes driver teleoperation control loop.
 pub fn opcontrol(robot: &mut RobotHardware, running_flag: Option<Arc<AtomicBool>>) {

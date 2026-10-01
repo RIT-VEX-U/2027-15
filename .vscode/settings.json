@@ -1,6 +1,8 @@
 {
-	"C_Cpp.intelliSenseEngine": "disabled",
-	"clangd.arguments": [
-		"--compile-commands-dir=build"
-	]
+  "rust-analyzer.check.command": "clippy",
+  "rust-analyzer.cargo.allTargets": true,
+  "editor.formatOnSave": true,
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+  }
 }

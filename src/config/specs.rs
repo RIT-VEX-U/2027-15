@@ -1,7 +1,7 @@
 //! Physical and algorithmic robot specification configuration.
 
-pub use crate::mantle::subsystems::tank_drive::RobotSpecs;
 use crate::core::controls::pid::PidConfig;
+pub use crate::mantle::subsystems::tank_drive::RobotSpecs;
 
 /// Physical robot dimensions and mechanical parameters (inches).
 pub const ROBOT_RADIUS_INCHES: f64 = 9.0;

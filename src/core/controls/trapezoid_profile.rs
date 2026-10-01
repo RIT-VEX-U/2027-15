@@ -50,14 +50,30 @@ impl TrapezoidProfile {
                 let dist_cruise = abs_dist - dist_full;
                 let time_cruise = dist_cruise / v_max;
                 let time_total = time_accel + time_cruise + time_decel;
-                (false, v_max, time_accel, time_decel, dist_cruise, time_cruise, time_total)
+                (
+                    false,
+                    v_max,
+                    time_accel,
+                    time_decel,
+                    dist_cruise,
+                    time_cruise,
+                    time_total,
+                )
             } else {
                 let v_peak = ((2.0 * abs_dist * accel * decel) / (accel + decel)).sqrt();
                 let time_accel = v_peak / accel;
                 let time_decel = v_peak / decel;
                 let time_cruise = 0.0;
                 let time_total = time_accel + time_decel;
-                (true, v_peak, time_accel, time_decel, 0.0, time_cruise, time_total)
+                (
+                    true,
+                    v_peak,
+                    time_accel,
+                    time_decel,
+                    0.0,
+                    time_cruise,
+                    time_total,
+                )
             };
 
         Self {
@@ -90,11 +106,7 @@ impl TrapezoidProfile {
         }
 
         let (pos_local, vel_local, acc_local) = if t < self.time_accel {
-            (
-                0.5 * self.accel * (t * t),
-                self.accel * t,
-                self.accel,
-            )
+            (0.5 * self.accel * (t * t), self.accel * t, self.accel)
         } else if !self.triangular && t < self.time_accel + self.time_cruise {
             (
                 self.dist_accel + self.v_max * (t - self.time_accel),
@@ -113,8 +125,7 @@ impl TrapezoidProfile {
                     + (self.v_peak * time_deceled)
                     - (0.5 * self.decel * (time_deceled * time_deceled))
             } else {
-                self.dist_accel
-                    + (self.v_max * (self.time_cruise + time_deceled))
+                self.dist_accel + (self.v_max * (self.time_cruise + time_deceled))
                     - (0.5 * self.decel * (time_deceled * time_deceled))
             };
 
