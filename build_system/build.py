@@ -19,6 +19,7 @@ from .settings import (
 )
 from .toolchain import Toolchain, discover_toolchain
 from .util import BUILD_DIR, PROJECT_FILE, ROOT, blue, bold, green, print_step, write_if_changed, yellow
+from .symbols import build_crash_symbol_object, verify_crash_symbol_addresses
 
 SOURCE_GLOBS = (
     "src/**/*.c",
@@ -43,6 +44,11 @@ COMMON_FLAGS = [
     "-mfloat-abi=softfp",
     "-Os",
     "-g3",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-fno-omit-frame-pointer",
+    "-mno-omit-leaf-frame-pointer",
+    "-fno-optimize-sibling-calls",
     "-fcolor-diagnostics",
     "-U__INT32_TYPE__",
     "-U__UINT32_TYPE__",
@@ -55,8 +61,6 @@ CXX_FLAGS = [
     "-fno-threadsafe-statics",
     "-fno-exceptions",
     "-std=gnu++26",
-    "-ffunction-sections",
-    "-fdata-sections",
 ]
 WARNING_FLAGS = ["-Wall", "-Werror=return-type"]
 LINK_LIBS = [
@@ -73,7 +77,7 @@ LINK_LIBS = [
 OBJDUMP_FLAGS = ["--source", "--line-numbers", "--demangle", "--disassemble"]
 
 # generates the makefile and compile_commands.json for clangd
-def generate_build_files(name: str, sources: list[Path], toolchain: Toolchain, quiet: bool) -> None:
+def generate_build_files(name: str, sources: list[Path], toolchain: Toolchain, quiet: bool) -> list[str]:
     includes = [f"-I{path}" for path in PROJECT_INCLUDES]
     system_includes = [
         "-isystem",
@@ -101,10 +105,12 @@ def generate_build_files(name: str, sources: list[Path], toolchain: Toolchain, q
     write_if_changed(BUILD_DIR / "compile_commands.json", json.dumps(commands, indent=2) + "\n")
 
     # write Makefile
-    obj_list = " \\\n  ".join(f"$(OBJROOT)/{source.relative_to(ROOT).as_posix()}.obj" for source in sources)
+    obj_list = " \\\n ".join(f"$(OBJROOT)/{source.relative_to(ROOT).as_posix()}.obj" for source in sources)
     ld_flags = [
         "-z",
         "norelro",
+        # Define before -T: the script uses DEFINED() when allocating stacks.
+        "--defsym=_ABORT_STACK_SIZE=0x4000",
         "-T",
         toolchain.linker_script.as_posix(),
         "-e",
@@ -115,8 +121,16 @@ def generate_build_files(name: str, sources: list[Path], toolchain: Toolchain, q
     ]
     makefile_path = BUILD_DIR / "Makefile"
 
+    patcher_override = os.environ.get("VEXPATCHER_LIBRARY")
+    local_patcher = ROOT.parent / "VexPatcher" / "build" / "libvexpatcher.a"
+    link_libs = list(LINK_LIBS)
+    if patcher_override:
+        link_libs[0] = str(Path(patcher_override).resolve())
+    elif local_patcher.is_file():
+        link_libs[0] = local_patcher.as_posix()
+
     makefile = f"""\
-.PHONY: all
+.PHONY: all FORCE
 
 PROJECT := {name}
 BUILD_MAKEFILE := {makefile_path.relative_to(ROOT).as_posix()}
@@ -138,7 +152,8 @@ SYSTEM_INCLUDES := {shlex.join(system_includes)}
 CFLAGS := {shlex.join(C_FLAGS)}
 CXXFLAGS := {shlex.join(CXX_FLAGS)}
 LDFLAGS := {shlex.join(ld_flags)}
-LDLIBS := {shlex.join(LINK_LIBS)}
+LDLIBS := {shlex.join(link_libs)}
+EXTRA_OBJECTS ?=
 
 OBJECTS := \\
   {obj_list}
@@ -146,17 +161,19 @@ DEPFILES := $(OBJECTS:.obj=.obj.d)
 
 all: $(BIN) $(ASM)
 
+FORCE:
+
 $(OBJROOT)/%.cpp.obj: %.cpp $(BUILD_MAKEFILE)
-\t@echo CXX      $<
+\t@echo CXX $<
 \t@$(CLANG) $(COMMON_FLAGS) $(CXXFLAGS) $(INCLUDES) $(SYSTEM_INCLUDES) -MMD -MP -MF "$@.d" -o "$@" -c "$<"
 
 $(OBJROOT)/%.c.obj: %.c $(BUILD_MAKEFILE)
-\t@echo CC       $<
+\t@echo CC $<
 \t@$(CLANG) $(COMMON_FLAGS) $(CFLAGS) $(INCLUDES) $(SYSTEM_INCLUDES) -MMD -MP -MF "$@.d" -o "$@" -c "$<"
 
-$(ELF): $(OBJECTS) $(BUILD_MAKEFILE)
+$(ELF): $(OBJECTS) $(EXTRA_OBJECTS) $(BUILD_MAKEFILE) FORCE
 \t@echo {'LINK':<8} $(PROJECT).elf
-\t@$(LD) $(LDFLAGS) $(OBJECTS) -o "$@" --start-group $(LDLIBS) --end-group
+\t@$(LD) $(LDFLAGS) $(OBJECTS) $(EXTRA_OBJECTS) -o "$@" --start-group $(LDLIBS) --end-group
 \t@$(SIZE) "$@"
 
 $(BIN): $(ELF)
@@ -168,6 +185,7 @@ $(ASM): $(ELF)
 -include $(DEPFILES)
 """
     write_if_changed(makefile_path, makefile)
+    return base_flags
 
 # remove the build directory
 def clean() -> int:
@@ -201,16 +219,32 @@ def build(args: argparse.Namespace, settings: ProjectSettings | None = None) -> 
     for source in sources:
         (BUILD_DIR / "objects" / f"{source.relative_to(ROOT)}.obj").parent.mkdir(parents=True, exist_ok=True)
 
-    generate_build_files(name, sources, toolchain, args.quiet)
+    base_flags = generate_build_files(name, sources, toolchain, args.quiet)
 
-    # run make
+    # First link: determine which functions survive and their addresses.
+    make_command = [
+        str(toolchain.make), "--silent", "--no-print-directory",
+        "-f", str(BUILD_DIR / "Makefile"), f"-j{jobs}",
+    ]
     result = subprocess.run(
-        [str(toolchain.make), "--silent", "--no-print-directory", "-f", str(BUILD_DIR / "Makefile"), f"-j{jobs}"],
+        make_command,
         cwd=ROOT,
         check=False,
     )
     if result.returncode != 0:
         return result.returncode
+
+    elf = BUILD_DIR / f"{name}.elf"
+    symbol_object, expected_symbols = build_crash_symbol_object(elf, toolchain, base_flags)
+    # Second link: include the table, then check that its addresses still match.
+    result = subprocess.run(
+        [*make_command, f"EXTRA_OBJECTS={symbol_object.relative_to(ROOT).as_posix()}"],
+        cwd=ROOT,
+        check=False,
+    )
+    if result.returncode != 0:
+        return result.returncode
+    verify_crash_symbol_addresses(elf, toolchain, expected_symbols)
 
     for suffix in ("elf", "bin", "S"):
         artifact = BUILD_DIR / f"{name}.{suffix}"

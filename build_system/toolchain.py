@@ -32,6 +32,7 @@ class Toolchain:
     objcopy: Path
     objdump: Path
     size: Path
+    nm: Path
     make: Path
     vflash: Path
     resource_dir: Path
@@ -106,6 +107,7 @@ def discover_toolchain(sdk_version: str = "latest") -> Toolchain:
         objcopy=bin_dir / f"llvm-objcopy{exe}",
         objdump=bin_dir / f"llvm-objdump{exe}",
         size=bin_dir / f"llvm-size{exe}",
+        nm=bin_dir / f"llvm-nm{exe}",
         make=toolchain_path / "tools" / f"make{exe}",
         vflash=vflash,
         resource_dir=toolchain_path / f"lib/clang/{CLANG_VERSION}",
